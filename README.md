@@ -1,4 +1,6 @@
-# CASA0017 Group 5 Assessment - Chicago Crime Data Visualisation
+# CASA0017 Group 5 Assessment - "City Mystery" UK Travel Planner
 
-A web-based interactive map and analysis platform utilising Chicago crime data.
+City Mystery is an intelligent UK travel planner which makes the travel planning no more frustrating.
+You can deal the cards and explore a city with just one click.
+Collecting digital stamps to make every travel memorisable.
 
