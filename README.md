@@ -4,3 +4,4 @@ City Mystery is an intelligent UK travel planner which makes the travel planning
 You can deal the cards and explore a city with just one click.
 Collecting digital stamps to make every travel memorisable.
 
+This is a development branch.
