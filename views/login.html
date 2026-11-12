@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Log in - City Mystery</title>
+  <link rel="stylesheet" href="font.css">
+  <link rel="stylesheet" href="login.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="login.html">
+      <span class="brand-icon"></span>
+      <span class="brand-name">City Mystery</span>
+    </a>
+  </header>
+
+  <div class="login-shell">
+    <div class="login-intro">
+      <h1>Explore the UK.</h1>
+      <p>Discover cities, plan a day trip and collect digital stamps.</p>
+    </div>
+
+    <div class="login-panel" id="login-panel">
+      <div class="auth-tabs">
+        <button type="button" class="is-selected" id="login-btn">Log in</button>
+        <button type="button" id="signup-btn">Sign up</button>
+      </div>
+      <div id="login-form">
+        <form >
+            <label for="username">Username</label>
+            <input id="username" name="username" required pattern="[A-Za-z0-9]+" maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false" title="Use letters and numbers only">
+
+            <label for="password">Password</label>
+            <div class="password-field">
+                <input id="password" name="password" type="password" required pattern="[A-Za-z0-9]+" maxlength="128" autocomplete="current-password" title="Use letters and numbers only">
+                <button id="toggle-password" type="button">Show</button>
+            </div>
+
+            <p class="field-note">Letters and numbers only. Both fields are required.</p>
+            <button id="login-submit" type="submit" class="submit-button">Log in</button>
+        </form>
+      </div>
+
+      <div id="signup-form" hidden>
+        <form id="signup-form-inner">
+        <label for="username">Username</label>
+        <input id="susername" name="username" required pattern="[A-Za-z0-9]+" maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false" title="Use letters and numbers only">
+
+        <label for="password">Password</label>
+        <div class="password-field">
+          <input id="spassword" name="password" type="password" maxlength="128">
+          <button id="stoggle-password" type="button">Show</button>
+        </div>
+
+        <label for="confirm">Confirm password</label>
+        <input id="spassword-confirm" name="password-confirm" type="password" maxlength="128" autocapitalize="none" spellcheck="false">
+
+        <p id="notifier"></p>
+        <p class="field-note">Password must be longer than 8, containing letters and numbers.</p>
+        <button id="signup-submit" type="submit" class="submit-button">Sign up</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+<script>
+
+  const loginForm = document.getElementById("login-form");
+  const signupForm = document.getElementById("signup-form");
+  const loginBtn = document.getElementById("login-btn");
+  const signupBtn = document.getElementById("signup-btn");
+  const loginSubmitBtn = document.getElementById("login-submit");
+  const signupSubmitBtn = document.getElementById("signup-submit");
+  loginBtn.addEventListener("click", () => {
+    loginBtn.classList.toggle("is-selected", true);
+    signupBtn.classList.toggle("is-selected", false);
+    loginForm.hidden = false;
+    signupForm.hidden = true;
+  });
+  signupBtn.addEventListener("click", () => {
+    loginBtn.classList.toggle("is-selected", false);
+    signupBtn.classList.toggle("is-selected", true);
+    loginForm.hidden = true;
+    signupForm.hidden = false;
+  });
+</script>
+</html>

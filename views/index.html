@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home — City Mystery</title>
+  <link rel="stylesheet" href="font.css">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="index.html">
+      <span class="brand-icon"></span>
+      <span class="brand-name">City Mystery</span>
+    </a>
+    <nav class="site-nav">
+      <a href="/home" class="is-current">Home</a>
+      <a href="/planner">My Trip</a>
+      <a href="/passport">Travel Passport</a>
+    </nav>
+    <button type="button" class="account-button" id="open-account">
+      <span class="placeholder avatar-placeholder"></span>
+      <span id="username-span">%USERNAME%</span>
+    </button>
+  </header>
+
+  <dialog class="account-dialog" id="account-dialog">
+    <h2 id="account-title">My account</h2>
+    <dl class="account-details">
+      <dt>Username</dt>
+      <dd>%USERNAME%</dd>
+      <dt>User ID</dt>
+      <dd>%USERID%</dd>
+    </dl>
+    <div class="dialog-actions">
+      <a class="dialog-button" href="login.html">Log out</a>
+      <button type="button" class="dialog-button" id="close-account">Close</button>
+    </div>
+  </dialog>
+
+  <main>
+    <section class="hero">
+      <h1 id="hero-title">Plan your trip with one click</h1>
+      <div class="slideshow">
+        <div class="slides">
+          <figure class="slide is-active">
+            <img src="ref_proj/public/assets/edinburgh.jpg" alt="Edinburgh skyline seen from Calton Hill, with the castle in the distance">
+            <figcaption>Edinburgh, Scotland</figcaption>
+          </figure>
+          <figure class="slide">
+            <img src="ref_proj/public/assets/london.jpg" alt="Big Ben and the Palace of Westminster beside Westminster Bridge">
+            <figcaption>London, England</figcaption>
+          </figure>
+          <figure class="slide">
+            <img src="ref_proj/public/assets/york.jpg" alt="The Gothic towers and stone facade of York Minster">
+            <figcaption>York, England</figcaption>
+          </figure>
+        </div>
+        <div class="carousel-controls">
+          <button type="button" class="carousel-arrow" id="previous-slide">←</button>
+          <div class="carousel-dots">
+            <button type="button" class="dot is-active"></button>
+            <button type="button" class="dot"></button>
+            <button type="button" class="dot"></button>
+          </div>
+          <button type="button" class="carousel-arrow" id="next-slide">→</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="pace">
+      <h2 id="pace-title">Choose your pace</h2>
+      <div class="pace-options">
+        <button type="button" class="pace-option is-selected">
+          <span class="placeholder icon-placeholder"></span>
+          <strong>Trailblazer</strong>
+          <span class="tip">3 sights + 3 food stops</span>
+        </button>
+        <button type="button" class="pace-option">
+          <span class="placeholder icon-placeholder"></span>
+          <strong>Easygoing</strong>
+          <span class="tip">2 sights + 3 food stops</span>
+        </button>
+      </div>
+    </section>
+
+    <section class="trip">
+      <div class="trip-heading">
+        <h2 id="trip-title">Your trip starts here...</h2>
+        <p class="status-bar">1 city · 3 sights · 3 food stops</p>
+        <button type="button" class="build-button" disabled>Build my trip</button>
+      </div>
+
+      <div class="card-board">
+        <article class="card city-card">
+          <span class="card-label">City</span>
+          <div class="placeholder card-photo"></div>
+        </article>
+
+        <div class="discovery">
+          <h3>Sights</h3>
+          <div class="card-row">
+            <article class="card">
+              <span class="card-label">Sight 1</span>
+              <div class="placeholder card-photo"></div>
+            </article>
+            <article class="card">
+              <span class="card-label">Sight 2</span>
+              <div class="placeholder card-photo"></div>
+            </article>
+            <article class="card">
+              <span class="card-label">Sight 3</span>
+              <div class="placeholder card-photo"></div>
+            </article>
+          </div>
+
+          <h3>Food and Drinks</h3>
+          <div class="card-row">
+            <article class="card">
+              <span class="card-label">Food 1</span>
+              <div class="placeholder card-photo"></div>
+            </article>
+            <article class="card">
+              <span class="card-label">Food 2</span>
+              <div class="placeholder card-photo"></div>
+            </article>
+            <article class="card">
+              <span class="card-label">Food 3</span>
+              <div class="placeholder card-photo"></div>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const slides = document.querySelectorAll(".slide");
+    const dots = document.querySelectorAll(".dot");
+    let current = 0;
+
+    function showSlide(index) {
+      current = (index + slides.length) % slides.length;
+      slides.forEach((slide, i) => slide.classList.toggle("is-active", i === current));
+      dots.forEach((dot, i) => {
+        dot.classList.toggle("is-active", i === current);
+      });
+    }
+
+    dots.forEach((dot, i) => dot.addEventListener("click", () => showSlide(i)));
+    document.getElementById("previous-slide").addEventListener("click", () => showSlide(current - 1));
+    document.getElementById("next-slide").addEventListener("click", () => showSlide(current + 1));
+
+    const accountDialog = document.getElementById("account-dialog");
+    document.getElementById("open-account").addEventListener("click", () => accountDialog.showModal());
+    document.getElementById("close-account").addEventListener("click", () => accountDialog.close());
+  </script>
+</body>
+</html>

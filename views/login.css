@@ -1,0 +1,168 @@
+:root {
+  --background: #E0F2F1;
+  --surface: #B2DFDB;
+  --field: #E0F2F1;
+  --border: #4DB6AC;
+  --placeholder: #E0E0E0;
+  --hover: #80CBC4;
+  --text: #000000;
+  --text-on-accent: #FFFFFF;
+  --tip: #424242;
+  --accent: #00695C;
+  --accent-hover: #004D40;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--text);
+}
+
+/* Header */
+
+.site-header {
+  padding: 0.75em 1.5em;
+}
+
+.brand {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 0.75em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 2em;
+  height: 2em;
+  border-radius: 0.5em;
+  background: var(--placeholder);
+}
+
+/* Layout*/
+
+.login-shell {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  min-height: 0;
+  padding-bottom: 4em;
+}
+
+.login-intro {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 0 2em;
+  text-align: center;
+}
+
+.login-intro h1 {
+  margin: 0 0 0.4em;
+}
+
+.login-intro p {
+  margin: 0;
+}
+
+.login-panel {
+  display: grid;
+  align-content: start;
+  align-self: start;
+  justify-self: center;
+  gap: 0.6em;
+  width: min(100% - 4em, 28em);
+  min-height: 0;
+  padding: 1em;
+  border-radius: 1em;
+  background: var(--surface);
+}
+
+/* Tabs */
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+}
+
+.auth-tabs button {
+  padding: 0.5em;
+  border: thin solid var(--border);
+  border-radius: 0.5em;
+  background: var(--field);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.auth-tabs button.is-selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+/* Form */
+
+form {
+  display: grid;
+  gap: 0.4em;
+}
+
+input {
+  width: 100%;
+  padding: 0.6em 0.75em;
+  border: thin solid var(--border);
+  border-radius: 0.5em;
+  background: var(--field);
+  color: var(--text);
+}
+
+.password-field {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5em;
+}
+
+.password-field button {
+  padding: 0 0.9em;
+  border: thin solid var(--border);
+  border-radius: 0.5em;
+  background: var(--field);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.password-field button:hover {
+  background: var(--hover);
+}
+
+.field-note {
+  margin: 0;
+  color: var(--tip);
+}
+
+.submit-button {
+  margin-top: 0.4em;
+  padding: 0.75em;
+  border: none;
+  border-radius: 0.5em;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  cursor: pointer;
+}
+
+.submit-button:hover {
+  background: var(--accent-hover);
+}
