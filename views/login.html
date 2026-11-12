@@ -65,6 +65,9 @@
   </div>
 </body>
 <script>
+  if (new URLSearchParams(location.search).get('expired')) {
+    window.alert('Session expired after 10 minutes, please login again.');
+  }
 
   const loginForm = document.getElementById("login-form");
   const signupForm = document.getElementById("signup-form");
@@ -83,6 +86,65 @@
     signupBtn.classList.toggle("is-selected", true);
     loginForm.hidden = true;
     signupForm.hidden = false;
+  });
+  const usernameInput = document.getElementById("username");
+  const signupUsernameInput = document.getElementById("susername");
+  const pwdInput = document.getElementById("password");
+  const signupPwdInput = document.getElementById("spassword");
+  const signupPwdInputC = document.getElementById("spassword-confirm");
+  const notifier = document.getElementById("notifier");
+  loginSubmitBtn.addEventListener('click', async () => {
+    const loginInfo = { username: usernameInput.value, password: pwdInput.value };
+    const _ = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(loginInfo),
+    }).then(async res => {
+      const response = await res.json();
+      if (response.is_success) {
+        window.location.replace(`/home`);
+      } else {
+        window.alert(response.message);
+      }
+    });
+  });
+  document.getElementById("signup-form-inner").addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const susername = signupUsernameInput.value;
+    const spwd = signupPwdInput.value;
+    const spwdc = signupPwdInputC.value;
+    const re = /^(?=.*\d)(?=.*[A-Za-z]).+$/;
+    if (spwd.length < 8 || !re.test(spwd)) {
+      notifier.textContent = 'This password is too weak!';
+      return;
+    }
+    if (spwd != spwdc) {
+      notifier.textContent = 'Password does not match!';
+      return;
+    }
+    const signupInfo = { username: susername, password: spwd };
+    const signup = await fetch('/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(signupInfo),
+    }).then(async res => {
+      const response = await res.json();
+      if (!response.is_success) {
+        window.alert(response.message);
+      }
+    });
+    const login = await fetch('/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(signupInfo), // use signup info to login immediately
+    }).then(async res => {
+      const response = await res.json();
+      if (response.is_success) {
+        window.location.replace(`/home`);
+      } else {
+        window.alert(response.message);
+      }
+    });
   });
 </script>
 </html>
