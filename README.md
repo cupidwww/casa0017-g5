@@ -4,3 +4,12 @@ City Mystery is an intelligent UK travel planner which makes the travel planning
 You can deal the cards and explore a city with just one click.
 Collecting digital stamps to make every travel memorisable.
 
+## Main features
+
+**Highly customisable trip with no manual planning**: The planner automatically generates a travel plan. However, it is still changeable, including the travel pace, extra waypoints, etc.
+
+**Route optimising after every update**: The planner optimises the route based on the waypoints. No time wasting on public transportations.
+
+**Collectables and memories**: Collecting digital stamps after every trip. Make every travel memorisable.
+
+## Usage
