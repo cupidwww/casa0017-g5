@@ -16,6 +16,12 @@ Collecting digital stamps to make every travel memorisable.
 
 ## References
 
+### Interactive map
+
+Map library: [MapLibre GL JS](https://maplibre.org/)
+
+Routing API: [Geoapify](https://www.geoapify.com/)
+
 ### Data source
 All data available from public websites.
 - [WorldAtlas – 10 Most Visited Cities In Britain](https://worldatlas.com/articles/which-are-the-10-most-visited-cities-of-britain.html)

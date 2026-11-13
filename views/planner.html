@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Trip — City Mystery</title>
+  <link rel="stylesheet" href="font.css">
+  <link rel="stylesheet" href="planner.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/home">
+      <span class="brand-icon"></span>
+      <span class="brand-name">City Mystery</span>
+    </a>
+    <nav class="site-nav">
+      <a href="/home">Home</a>
+      <a href="/planner" class="is-current">My Trip</a>
+      <a href="/passport">Travel Passport</a>
+    </nav>
+    <button type="button" class="account-button" id="open-account">
+      <span class="placeholder avatar-placeholder"></span>
+      <span>%USERNAME%</span>
+    </button>
+  </header>
+
+  <dialog class="account-dialog" id="account-dialog">
+    <h2 id="account-title">My account</h2>
+    <dl class="account-details">
+      <dt>Username</dt>
+      <dd>%USERNAME%</dd>
+      <dt>User ID</dt>
+      <dd>%USERID%</dd>
+    </dl>
+    <div class="dialog-actions">
+      <a class="dialog-button" href="login.html">Log out</a>
+      <button type="button" class="dialog-button" id="close-account">Close</button>
+    </div>
+  </dialog>
+
+  <main>
+    <section class="trip-heading">
+      <h1 id="trip-title">%CITYNAME% trip</h1>
+      <p class="status-bar">%PACE% · %SIGHTCOUNT% sights · %FOODCOUNT% food stops</p>
+      <div class="heading-actions">
+        <a class="back-button" href="/home">← Back to my discoveries</a>
+        <button type="button" class="back-button" id="finish-button">Trip finished!</button>
+      </div>
+    </section>
+
+    <section class="workspace">
+      <div class="side-panel">
+        <div class="tabs">
+          <button type="button" class="tab is-selected" id="tab-cards" data-panel="panel-cards">Cards</button>
+          <button type="button" class="tab" id="tab-navigation" data-panel="panel-navigation">Navigation</button>
+        </div>
+
+        <div class="tab-panel card-grid" id="panel-cards">
+          %CARDS%
+        </div>
+
+        <div class="tab-panel" id="panel-navigation" hidden>
+          <p class="route-summary tip" id="route-summary">Loading route...</p>
+          <ol class="route-list" id="route-list"></ol>
+        </div>
+      </div>
+
+      <div class="map-panel" id="map-container"></div>
+      <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@^6.17.0/dist/maplibre-gl.css" />
+      <script type="module">
+          import * as maplibregl from 'https://unpkg.com/maplibre-gl@^6.17.0/dist/maplibre-gl.mjs';
+          const apiKey = '7106f66485894ece867667b297a9139c';
+          const map = new maplibregl.Map({
+              container: 'map-container', // container id
+              style: `https://maps.geoapify.com/v1/styles/osm-bright/style.json?apiKey=${apiKey}`, // style URL
+              center: [-0.1278, 51.5074],  // [longitude, latitude]
+              zoom: 12,
+          });
+          const routeSummary = document.getElementById('route-summary');
+          const routeList = document.getElementById('route-list');
+
+          function formatDistance(meters) {
+            if (meters < 1000) {
+              return `${Math.round(meters)} m`;
+            }
+            return `${(meters / 1000).toFixed(1)} km`;
+          }
+
+          function formatTime(seconds) {
+            const minutes = Math.round(seconds / 60);
+            if (minutes < 1) {
+              return '<1 min';
+            }
+            if (minutes < 60) {
+              return `${minutes} min`;
+            }
+            return `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
+          }
+
+          function addStep(title, detail) {
+            const item = document.createElement('li');
+            item.className = 'route-step';
+            const strong = document.createElement('strong');
+            strong.textContent = title;
+            const span = document.createElement('span');
+            span.className = 'tip';
+            span.textContent = detail;
+            item.append(strong, span);
+            routeList.append(item);
+          }
+
+          function fillNavigation(places, properties) {
+            const modeText = (properties.mode === 'transit') ? 'by public transport' : 'walking';
+            routeSummary.textContent = `${places.length} stops · ${formatDistance(properties.distance)} · ${formatTime(properties.time)} ${modeText}`;
+            addStep(`Start at stop 1: ${places[0].name}`, 'Stop 1');
+            for (let i = 0; i < properties.legs.length; i++) {
+              for (const step of properties.legs[i].steps) {
+                addStep(step.instruction.text, `${formatTime(step.time)} · ${formatDistance(step.distance)}`);
+              }
+              addStep(`Arrive at stop ${i + 2}: ${places[i + 1].name}`, `Leg total · ${formatTime(properties.legs[i].time)} · ${formatDistance(properties.legs[i].distance)}`);
+            }
+          }
+
+          function makeMarker(number) {
+            const marker = document.createElement('div');
+            marker.className = 'stop-marker';
+            marker.textContent = number;
+            return marker;
+          }
+
+          async function loadRoute() {
+            const res = await fetch('/map-service/plan');
+            if (res.status === 401) {
+              window.location.href = '/?expired=1';
+              return;
+            }
+            if (res.status !== 200) {
+              routeSummary.textContent = 'Could not load the route';
+              return;
+            }
+            const plan = await res.json();
+            const feature = plan.route.features[0];
+            fillNavigation(plan.places, feature.properties);
+
+            map.addSource('route', { type: 'geojson', data: plan.route });
+
+            // white casing under the line so it stands out on the basemap
+            map.addLayer({
+              id: 'route-casing',
+              type: 'line',
+              source: 'route',
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: { 'line-color': '#fff', 'line-width': 9 },
+            });
+
+            map.addLayer({
+              id: 'route-line',
+              type: 'line',
+              source: 'route',
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: { 'line-color': '#1e6fff', 'line-width': 5 },
+            });
+
+            // numbered markers in final route order
+            for (let i = 0; i < plan.places.length; i++) {
+              const place = plan.places[i];
+              const popup = new maplibregl.Popup({ offset: 16 }).setText(`${i + 1}. ${place.name}`);
+              new maplibregl.Marker({ element: makeMarker(i + 1) })
+                .setLngLat([place.longitude, place.latitude])
+                .setPopup(popup)
+                .addTo(map);
+            }
+
+            // zoom to fit the whole route
+            const coords = feature.geometry.coordinates.flat(); // MultiLineString -> [lon, lat][]
+            let bounds = new maplibregl.LngLatBounds(coords[0], coords[0]);
+            for (const coord of coords) {
+              bounds.extend(coord);
+            }
+            map.fitBounds(bounds, { padding: 60 });
+          }
+
+          map.on('load', loadRoute);
+      </script>
+    </section>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const panels = document.querySelectorAll(".tab-panel");
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((other) => {
+          const selected = other === tab;
+          other.classList.toggle("is-selected", selected);
+          document.getElementById(other.dataset.panel).hidden = !selected;
+        });
+      });
+    });
+
+    const finishButton = document.getElementById("finish-button");
+    finishButton.addEventListener("click", async () => {
+      finishButton.disabled = true;
+      const res = await fetch("/api/finish", { method: "POST" });
+      if (res.status === 401) {
+        window.location.href = "/?expired=1";
+        return;
+      }
+      if (res.status === 200) {
+        window.location.href = "/passport";
+      } else {
+        finishButton.disabled = false;
+      }
+    });
+
+    const accountDialog = document.getElementById("account-dialog");
+    document.getElementById("open-account").addEventListener("click", () => accountDialog.showModal());
+    document.getElementById("close-account").addEventListener("click", () => accountDialog.close());
+  </script>
+</body>
+</html>
