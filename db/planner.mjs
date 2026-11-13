@@ -1,6 +1,6 @@
 import { getCoord } from './db_util.mjs';
 
-const apiKey = 'XXX';
+const apiKey = '7106f66485894ece867667b297a9139c';
 const BASEURL = 'https://api.geoapify.com/v1';
 const BASEURLV2 = 'https://api.geoapify.com/v2';
 
