@@ -59,7 +59,112 @@
   </main>
 
   <script>
-   
+    const STAMPS_PER_PAGE = 2;
+    let spreads = [{ left: [], right: [] }];
+    let collected = 0;
+    let total = 0;
+    const leftPage = document.getElementById("left-page");
+    const rightPage = document.getElementById("right-page");
+    const prevButton = document.getElementById("page-prev");
+    const nextButton = document.getElementById("page-next");
+    let index = 0;
+
+    function stampMarkup(stamp) {
+      return `
+        <figure class="stamp">
+          <img src="${stamp.image}" alt="${stamp.name} travel stamp">
+          <figcaption>
+            <strong>${stamp.name}</strong>
+            <span class="tip">Visited · ${stamp.date}</span>
+          </figcaption>
+        </figure>`;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatDate(timestamp) {
+      return new Date(timestamp).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+    }
+
+    function pageMarkup(stamps, number, empty) {
+      let list = stamps.map(stampMarkup).join("");
+      if (empty) {
+        list = `<p class="tip">No stamps yet. Finish a trip to collect some.</p>`;
+      }
+      return `
+        <div class="stamp-list">${list}</div>
+        <span class="page-number tip">${String(number).padStart(2, "0")}</span>`;
+    }
+
+    function buildSpreads(stamps) {
+      // two stamps per page, four per spread
+      let result = [];
+      for (let i = 0; i < stamps.length; i += STAMPS_PER_PAGE * 2) {
+        result.push({
+          left: stamps.slice(i, i + STAMPS_PER_PAGE),
+          right: stamps.slice(i + STAMPS_PER_PAGE, i + STAMPS_PER_PAGE * 2),
+        });
+      }
+      if (result.length === 0) {
+        result.push({ left: [], right: [] });
+      }
+      return result;
+    }
+
+    function render() {
+      const spread = spreads[index];
+      leftPage.innerHTML = pageMarkup(spread.left, index * 2 + 1, collected === 0);
+      rightPage.innerHTML = pageMarkup(spread.right, index * 2 + 2, false);
+      document.getElementById("page-position").textContent = `${index + 1} / ${spreads.length}`;
+      document.getElementById("passport-count").textContent = `${collected} of ${total} sight stamps collected`;
+      prevButton.disabled = index === 0;
+      nextButton.disabled = index === spreads.length - 1;
+    }
+
+    function turn(direction) {
+      const next = index + direction;
+      if (next < 0 || next >= spreads.length) return;
+      index = next;
+      render();
+    }
+
+    prevButton.addEventListener("click", () => turn(-1));
+    nextButton.addEventListener("click", () => turn(1));
+    document.getElementById("passport-book").addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") turn(1);
+      if (event.key === "ArrowLeft") turn(-1);
+    });
+    async function loadStamps() {
+      const res = await fetch("/api/stamps");
+      if (res.status === 401) {
+        window.location.href = "/?expired=1";
+        return;
+      }
+      if (res.status === 200) {
+        const data = await res.json();
+        let stamps = [];
+        for (const stamp of data.stamps) {
+          stamps.push({
+            image: `assets/stamps/place-${stamp.id}.webp`,
+            name: escapeHtml(stamp.name),
+            date: formatDate(stamp.visited_at),
+          });
+        }
+        spreads = buildSpreads(stamps);
+        collected = stamps.length;
+        total = data.total;
+      }
+      render();
+    }
+    loadStamps();
+
+    const accountDialog = document.getElementById("account-dialog");
+    document.getElementById("open-account").addEventListener("click", () => accountDialog.showModal());
+    document.getElementById("close-account").addEventListener("click", () => accountDialog.close());
   </script>
 </body>
 </html>
