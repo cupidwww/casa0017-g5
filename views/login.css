@@ -52,7 +52,7 @@ body {
   background: var(--placeholder);
 }
 
-/* Layout*/
+/* Layout: top intro, bottom login panel */
 
 .login-shell {
   display: grid;

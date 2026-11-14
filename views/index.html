@@ -9,7 +9,7 @@
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="index.html">
+    <a class="brand" href="/home">
       <span class="brand-icon"></span>
       <span class="brand-name">City Mystery</span>
     </a>
@@ -87,19 +87,22 @@
     <section class="trip">
       <div class="trip-heading">
         <h2 id="trip-title">Your trip starts here...</h2>
-        <p class="status-bar">1 city · 3 sights · 3 food stops</p>
-        <button type="button" class="build-button" disabled>Build my trip</button>
+        <p class="status-bar" id="status-bar">Picking a city for you...</p>
+        <div class="trip-actions">
+          <button type="button" class="build-button" id="regenerate-button" disabled>Pick again</button>
+          <button type="button" class="build-button" id="build-button" disabled>Build my trip</button>
+        </div>
       </div>
 
       <div class="card-board">
         <article class="card city-card">
-          <span class="card-label">City</span>
+          <span class="card-label" id="city-label">City</span>
           <div class="placeholder card-photo"></div>
         </article>
 
         <div class="discovery">
           <h3>Sights</h3>
-          <div class="card-row">
+          <div class="card-row" id="sight-row">
             <article class="card">
               <span class="card-label">Sight 1</span>
               <div class="placeholder card-photo"></div>
@@ -108,14 +111,14 @@
               <span class="card-label">Sight 2</span>
               <div class="placeholder card-photo"></div>
             </article>
-            <article class="card">
+            <article class="card optional-card">
               <span class="card-label">Sight 3</span>
               <div class="placeholder card-photo"></div>
             </article>
           </div>
 
           <h3>Food and Drinks</h3>
-          <div class="card-row">
+          <div class="card-row" id="food-row">
             <article class="card">
               <span class="card-label">Food 1</span>
               <div class="placeholder card-photo"></div>
@@ -150,6 +153,100 @@
     dots.forEach((dot, i) => dot.addEventListener("click", () => showSlide(i)));
     document.getElementById("previous-slide").addEventListener("click", () => showSlide(current - 1));
     document.getElementById("next-slide").addEventListener("click", () => showSlide(current + 1));
+
+    const paceOptions = document.querySelectorAll(".pace-option");
+    const regenerateButton = document.getElementById("regenerate-button");
+    const buildButton = document.getElementById("build-button");
+    const statusBar = document.getElementById("status-bar");
+    let pace = "trailblazer";
+    let currentTrip = null;
+
+    function fillCard(card, label, image) {
+      card.querySelector(".card-label").textContent = label;
+      card.querySelector(".card-photo").style.backgroundImage = `url('${image}')`;
+    }
+
+    function fillRow(rowId, places) {
+      const cards = document.querySelectorAll(`#${rowId} .card`);
+      for (let i = 0; i < cards.length; i++) {
+        if (i < places.length) {
+          fillCard(cards[i], places[i].name, `assets/places/${places[i].id}.jpg`);
+          cards[i].style.display = "";
+        } else {
+          cards[i].style.display = "none";
+        }
+      }
+    }
+
+    async function generateTrip() {
+      regenerateButton.disabled = true;
+      buildButton.disabled = true;
+      statusBar.textContent = "Picking a city for you...";
+      try {
+        let url = `/api/random-trip?pace=${pace}`;
+        if (currentTrip) {
+          url += `&exclude=${encodeURIComponent(currentTrip.city)}`;
+        }
+        const res = await fetch(url);
+        if (res.status === 401) {
+          window.location.href = "/?expired=1";
+          return;
+        }
+        if (res.status !== 200) {
+          throw new Error(res.status);
+        }
+        currentTrip = await res.json();
+        fillCard(document.querySelector(".city-card"), currentTrip.city, `assets/cities/${currentTrip.city.toLowerCase()}.jpg`);
+        fillRow("sight-row", currentTrip.sights);
+        fillRow("food-row", currentTrip.food);
+        statusBar.textContent = `Travel in ${currentTrip.city} with ${currentTrip.sights.length} sights and ${currentTrip.food.length} food stops`;
+        buildButton.disabled = false;
+      } catch (err) {
+        currentTrip = null;
+        statusBar.textContent = "Could not pick a trip, please try again";
+      }
+      regenerateButton.disabled = false;
+    }
+
+    async function buildTrip() {
+      if (!currentTrip) return;
+      let ids = [];
+      for (const place of currentTrip.sights.concat(currentTrip.food)) {
+        ids.push(place.id);
+      }
+      regenerateButton.disabled = true;
+      buildButton.disabled = true;
+      buildButton.textContent = "Building...";
+      try {
+        const res = await fetch("/api/trip", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ids: ids }),
+        });
+        if (res.status === 401) {
+          window.location.href = "/?expired=1";
+          return;
+        }
+        if (res.status !== 200) {
+          throw new Error(res.status);
+        }
+        window.location.href = "/planner";
+      } catch (err) {
+        statusBar.textContent = "Could not build the route, please try again";
+        buildButton.textContent = "Build my trip";
+        regenerateButton.disabled = false;
+        buildButton.disabled = false;
+      }
+    }
+
+    paceOptions.forEach((option, i) => option.addEventListener("click", () => {
+      paceOptions.forEach((other) => other.classList.toggle("is-selected", other === option));
+      pace = (i === 0) ? "trailblazer" : "easygoing";
+      generateTrip();
+    }));
+    regenerateButton.addEventListener("click", generateTrip);
+    buildButton.addEventListener("click", buildTrip);
+    generateTrip();
 
     const accountDialog = document.getElementById("account-dialog");
     document.getElementById("open-account").addEventListener("click", () => accountDialog.showModal());
