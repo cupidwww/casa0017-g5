@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Travel Passport — City Mystery</title>
+  <link rel="stylesheet" href="font.css">
+  <link rel="stylesheet" href="passport.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/home">
+      <span class="brand-icon"></span>
+      <span class="brand-name">City Mystery</span>
+    </a>
+    <nav class="site-nav">
+      <a href="/home">Home</a>
+      <a href="/planner">My Trip</a>
+      <a href="/passport" class="is-current">Travel Passport</a>
+    </nav>
+    <button type="button" class="account-button" id="open-account">
+      <span class="placeholder avatar-placeholder"></span>
+      <span>%USERNAME%</span>
+    </button>
+  </header>
+
+  <dialog class="account-dialog" id="account-dialog">
+    <h2 id="account-title">My account</h2>
+    <dl class="account-details">
+      <dt>Username</dt>
+      <dd>%USERNAME%</dd>
+      <dt>User ID</dt>
+      <dd>%USERID%</dd>
+    </dl>
+    <div class="dialog-actions">
+      <a class="dialog-button" href="login.html">Log out</a>
+      <button type="button" class="dialog-button" id="close-account">Close</button>
+    </div>
+  </dialog>
+
+  <main>
+    <section class="passport-heading">
+      <h1 id="passport-title">My Travel Passport</h1>
+      <p class="passport-count" id="passport-count"></p>
+    </section>
+
+    <section class="passport-wrap">
+      <nav class="passport-controls">
+        <button type="button" class="page-button" id="page-prev">← Previous page</button>
+        <span class="tip" id="page-position"></span>
+        <button type="button" class="page-button" id="page-next">Next page →</button>
+      </nav>
+
+      <div class="passport-book" id="passport-book" tabindex="0">
+        <section class="passport-page left-page" id="left-page"></section>
+        <section class="passport-page right-page" id="right-page"></section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+   
+  </script>
+</body>
+</html>
