@@ -1,0 +1,301 @@
+:root {
+  --background: #E0F2F1;
+  --surface: #B2DFDB;
+  --border: #4DB6AC;
+  --placeholder: #E0E0E0;
+  --hover: #80CBC4;
+  --text: #000000;
+  --text-on-accent: #FFFFFF;
+  --tip: #424242;
+  --accent: #00695C;
+  --accent-hover: #004D40;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+/* Header */
+
+.site-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 2em;
+  padding: 0.75em 2em;
+}
+
+.brand {
+  display: inline-grid;
+  justify-self: start;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 0.75em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.brand-icon {
+  width: 2em;
+  height: 2em;
+  border-radius: 0.5em;
+  background: var(--placeholder);
+}
+
+.site-nav {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.site-nav a {
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  color: inherit;
+  text-decoration: none;
+}
+
+.site-nav a:hover {
+  background: var(--hover);
+}
+
+.site-nav a.is-current {
+  background: var(--accent);
+  color: var(--text-on-accent);
+}
+
+/* Account */
+
+.account-button {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  justify-self: end;
+  gap: 0.5em;
+  padding: 0.4em 0.9em;
+  border: thin solid var(--border);
+  border-radius: 0.5em;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.account-button:hover {
+  background: var(--hover);
+}
+
+.avatar-placeholder {
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 50%;
+}
+
+.account-dialog {
+  width: min(24em, 100% - 2em);
+  padding: 1.5em;
+  border: thin solid var(--border);
+  border-radius: 1em;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.account-dialog::backdrop {
+  background: var(--tip);
+  opacity: 0.4;
+}
+
+.account-details {
+  display: grid;
+  gap: 0.25em;
+  margin: 1em 0;
+}
+
+.account-details dt {
+  color: var(--tip);
+}
+
+.account-details dd {
+  margin: 0 0 0.75em;
+}
+
+.dialog-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5em;
+}
+
+.dialog-button {
+  padding: 0.6em;
+  border: thin solid var(--border);
+  border-radius: 0.5em;
+  background: var(--background);
+  color: var(--text);
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dialog-button:hover {
+  background: var(--hover);
+}
+
+/* Shared */
+
+main {
+  display: grid;
+  gap: 1.5em;
+  padding: 0 2em 3em;
+}
+
+.placeholder {
+  border-radius: 0.75em;
+  background: var(--placeholder);
+}
+
+.tip {
+  color: var(--tip);
+}
+
+/* Passport */
+
+.passport-heading {
+  display: grid;
+  justify-items: center;
+  gap: 0.75em;
+  text-align: center;
+}
+
+.passport-count {
+  padding: 0.5em 1em;
+  border-radius: 2em;
+  background: var(--surface);
+}
+
+.passport-wrap {
+  display: grid;
+  gap: 1em;
+  justify-items: center;
+}
+
+.passport-book {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25em;
+  width: min(100%, 110vh);
+  padding: 0.75em;
+  border: thin solid var(--border);
+  border-radius: 1em;
+  background: var(--hover);
+}
+
+.passport-page {
+  aspect-ratio: 2 / 3;
+  container-type: size;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 1em;
+  padding: 1.5em;
+  background: var(--surface);
+}
+
+.left-page {
+  border-radius: 0.75em 0 0 0.75em;
+}
+
+.right-page {
+  border-radius: 0 0.75em 0.75em 0;
+}
+
+.page-heading {
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--tip);
+}
+
+.stamp-list {
+  display: grid;
+  grid-auto-rows: 1fr;
+  gap: 1em;
+}
+
+.stamp {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 0.5em;
+  margin: 0;
+  text-align: center;
+}
+
+.stamp img {
+  width: 100%;
+  max-height: 30cqh;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+
+.stamp strong {
+  display: block;
+}
+
+.page-number {
+  color: var(--tip);
+}
+
+.left-page .page-number {
+  justify-self: start;
+}
+
+.right-page .page-number {
+  justify-self: end;
+}
+
+.passport-controls {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 1.5em;
+}
+
+.page-button {
+  padding: 0.6em 1.2em;
+  border: thin solid var(--border);
+  border-radius: 0.5em;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.page-button:hover:not(:disabled) {
+  background: var(--hover);
+}
+
+.page-button:disabled {
+  background: var(--disabled);
+  cursor: default;
+}
+
+/* Narrow screens */
+
+@media (max-width: 50em) {
+  .passport-book {
+    grid-template-columns: 1fr;
+  }
+
+  .left-page,
+  .right-page {
+    border-radius: 0.75em;
+  }
+}
