@@ -50,3 +50,12 @@ export function verifyToken(token, db) {
   const result_name = query_name.get(result.user_id).username;
   return { is_success: true, user_id: result.user_id, username: result_name };
 }
+
+export function getCoord(id, db) {
+  const query = db.prepare('SELECT * FROM places WHERE id = ?');
+  const result = query.get(id);
+  if (!result) {
+    return { is_success: false, coord: [] };
+  }
+  return { is_success: true, coord: [result.longitude, result.latitude] };
+}
