@@ -15,7 +15,7 @@
     </a>
     <nav class="site-nav">
       <a href="/home" class="is-current">Home</a>
-      <a href="/planner">My Trip</a>
+      <a href="/planner" id="my-trip-link">My Trip</a>
       <a href="/passport">Travel Passport</a>
     </nav>
     <button type="button" class="account-button" id="open-account">
@@ -40,7 +40,10 @@
 
   <main>
     <section class="hero">
-      <h1 id="hero-title">Plan your trip with one click</h1>
+      <div class="hero-copy">
+        <h1 id="hero-title">Plan your trip with one click</h1>
+        <p class="hero-subtitle">Want to experience surprises during your trip? Then randomly select a city and a scenic spot!</p>
+      </div>
       <div class="slideshow">
         <div class="slides">
           <figure class="slide is-active">
@@ -81,6 +84,20 @@
           <strong>Easygoing</strong>
           <span class="tip">2 sights + 3 food stops</span>
         </button>
+      </div>
+    </section>
+
+    <section class="city-filter" aria-labelledby="city-filter-title">
+      <div class="city-filter-copy">
+        <h2 id="city-filter-title">Choose your destination</h2>
+        <p class="tip">Choose one or more cities, or select all.</p>
+      </div>
+      <div class="city-picker">
+        <div class="city-picker-actions">
+          <button type="button" class="city-picker-action" id="select-all-cities">Select all</button>
+          <button type="button" class="city-picker-action" id="clear-cities">Clear</button>
+        </div>
+        <div class="city-options" id="city-options" aria-label="Choose cities"></div>
       </div>
     </section>
 
@@ -158,8 +175,33 @@
     const regenerateButton = document.getElementById("regenerate-button");
     const buildButton = document.getElementById("build-button");
     const statusBar = document.getElementById("status-bar");
+    const cityOptions = document.getElementById("city-options");
+    function selectedCities() {
+      return [...cityOptions.querySelectorAll('input:checked')].map((input) => input.value);
+    }
     let pace = "trailblazer";
     let currentTrip = null;
+
+    async function loadCities() {
+      const res = await fetch("/api/cities");
+      if (res.status === 401) {
+        window.location.href = "/?expired=1";
+        return;
+      }
+      if (!res.ok) throw new Error("Could not load cities");
+      const { cities } = await res.json();
+      cities.forEach((city) => {
+        const label = document.createElement("label");
+        label.className = "city-option";
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.value = city;
+        input.checked = true;
+        input.addEventListener("change", generateTrip);
+        label.append(input, document.createTextNode(city));
+        cityOptions.append(label);
+      });
+    }
 
     function fillCard(card, label, image) {
       card.querySelector(".card-label").textContent = label;
@@ -178,14 +220,30 @@
       }
     }
 
+    function playCardFlip() {
+      const cards = document.querySelectorAll(".card-board .card");
+      cards.forEach((card, index) => {
+        card.classList.remove("is-flipping");
+        // Restart the animation so it plays on every draw.
+        void card.offsetWidth;
+        card.style.animationDelay = `${index * 65}ms`;
+        card.classList.add("is-flipping");
+      });
+    }
+
     async function generateTrip() {
       regenerateButton.disabled = true;
       buildButton.disabled = true;
       statusBar.textContent = "Picking a city for you...";
+      playCardFlip();
       try {
         let url = `/api/random-trip?pace=${pace}`;
+        const cities = selectedCities();
+        if (cities.length) url += `&cities=${encodeURIComponent(cities.join(','))}`;
+        else { statusBar.textContent = "Choose at least one city to pick a trip"; return; }
         if (currentTrip) {
-          url += `&exclude=${encodeURIComponent(currentTrip.city)}`;
+          // Keep re-picks within a chosen city; otherwise avoid the previous city.
+          if (cities.length > 1) url += `&exclude=${encodeURIComponent(currentTrip.city)}`;
         }
         const res = await fetch(url);
         if (res.status === 401) {
@@ -246,11 +304,31 @@
     }));
     regenerateButton.addEventListener("click", generateTrip);
     buildButton.addEventListener("click", buildTrip);
-    generateTrip();
+    document.getElementById("select-all-cities").addEventListener("click", () => {
+      cityOptions.querySelectorAll('input').forEach((input) => input.checked = true);
+      generateTrip();
+    });
+    document.getElementById("clear-cities").addEventListener("click", () => {
+      cityOptions.querySelectorAll('input').forEach((input) => input.checked = false);
+      currentTrip = null;
+      regenerateButton.disabled = true;
+      buildButton.disabled = true;
+      statusBar.textContent = "Choose at least one city to pick a trip";
+    });
+    loadCities().then(generateTrip).catch(() => {
+      statusBar.textContent = "Could not load cities, please refresh the page";
+    });
 
     const accountDialog = document.getElementById("account-dialog");
     document.getElementById("open-account").addEventListener("click", () => accountDialog.showModal());
     document.getElementById("close-account").addEventListener("click", () => accountDialog.close());
+
+    document.getElementById("my-trip-link").addEventListener("click", (event) => {
+      if (!currentTrip) {
+        event.preventDefault();
+        window.alert('Please first select the city, and then click "Build my trip"');
+      }
+    });
   </script>
 </body>
 </html>

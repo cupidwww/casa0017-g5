@@ -108,15 +108,29 @@ function getPlaces(ids) {
 
 app.get('/api/random-trip', tokenAuth, (req, res) => {
   const sight_count = (req.query.pace === 'easygoing') ? 2 : 3;
-  // exclude the current city so a re-pick always gives a new one
+  const requestedCities = req.query.cities ? String(req.query.cities).split(',').filter(Boolean) : [];
+  const allCities = db.prepare('SELECT DISTINCT city FROM places').all().map((row) => row.city);
+  if (requestedCities.some((city) => !allCities.includes(city))) return res.status(400).json({ is_success: false, message: 'Unknown city.' });
+  // Exclude the current city only when choosing from all available cities.
   const exclude = req.query.exclude || '';
-  const city = db.prepare('SELECT DISTINCT city FROM places WHERE city != ? ORDER BY RANDOM() LIMIT 1').get(exclude).city;
+  const eligibleCities = requestedCities.length ? requestedCities : allCities;
+  const candidates = eligibleCities.filter((city) => eligibleCities.length === 1 || city !== exclude);
+  const cityRow = candidates.length ? { city: candidates[Math.floor(Math.random() * candidates.length)] } : null;
+  if (!cityRow) {
+    return res.status(404).json({ is_success: false, message: 'No other cities available.' });
+  }
+  const city = cityRow.city;
   const query = db.prepare('SELECT id, name, city, address, type FROM places WHERE city = ? AND type = ? ORDER BY RANDOM() LIMIT ?');
   res.status(200).json({
     city: city,
     sights: query.all(city, 'sight', sight_count),
     food: query.all(city, 'food', 3),
   });
+});
+
+app.get('/api/cities', tokenAuth, (req, res) => {
+  const cities = db.prepare('SELECT DISTINCT city FROM places ORDER BY city').all().map((row) => row.city);
+  res.status(200).json({ cities });
 });
 
 app.post('/api/trip', tokenAuth, async (req, res) => {
