@@ -24,6 +24,8 @@ If there's any issue with the database, you can reset the database by:
 sqlite3 ./db/database.db < ./db/main.sql
 ```
 
+From CE Lab network CE-Hub-Student, you can access to the website by `10.129.111.42:1018`.
+
 ## References
 
 ### Interactive map
