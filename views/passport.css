@@ -50,8 +50,8 @@ p {
 .brand-icon {
   width: 2em;
   height: 2em;
-  border-radius: 0.5em;
-  background: var(--placeholder);
+  flex-shrink: 0;
+  background: url("/assets/route-cards-icon.svg") center / contain no-repeat;
 }
 
 .site-nav {

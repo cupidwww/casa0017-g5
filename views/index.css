@@ -52,8 +52,8 @@ p {
 .brand-icon {
   width: 2em;
   height: 2em;
-  border-radius: 0.5em;
-  background: var(--placeholder);
+  flex-shrink: 0;
+  background: url("/assets/route-cards-icon.svg") center / contain no-repeat;
 }
 
 .site-nav {
@@ -325,6 +325,8 @@ main {
   grid-area: icon;
   width: 3em;
   height: 3em;
+  background-size: cover;
+  background-position: center;
 }
 
 .pace-option strong {

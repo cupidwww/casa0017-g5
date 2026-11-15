@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" fill="none">
+  <!-- left card -->
+  <rect x="21" y="14" width="22" height="32" rx="3" fill="#ffffff" stroke="#153f32" stroke-width="2" transform="rotate(-18 32 58)"/>
+  <!-- right card -->
+  <rect x="21" y="14" width="22" height="32" rx="3" fill="#ffffff" stroke="#153f32" stroke-width="2" transform="rotate(18 32 58)"/>
+  <!-- middle card -->
+  <rect x="21" y="12" width="22" height="34" rx="3" fill="#ffffff" stroke="#153f32" stroke-width="2"/>
+  <!-- dashed route -->
+  <circle cx="26" cy="41" r="1.6" fill="#153f32"/>
+  <path d="M26 41 C26 35, 35 37, 31.5 32 S33 28.5, 36 27.5" stroke="#153f32" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="2 2.2"/>
+  <!-- marker -->
+  <path d="M36 15.5a4.2 4.2 0 0 1 4.2 4.2c0 3.1-4.2 7.6-4.2 7.6s-4.2-4.5-4.2-7.6a4.2 4.2 0 0 1 4.2-4.2z" fill="#153f32"/>
+  <circle cx="36" cy="19.7" r="1.5" fill="#ffffff"/>
+</svg>
