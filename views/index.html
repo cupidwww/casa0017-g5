@@ -226,7 +226,7 @@
         input.type = "checkbox";
         input.value = city;
         input.checked = true;
-        input.addEventListener("change", generateTrip);
+        input.addEventListener("change", selectionChanged);
         label.append(input, document.createTextNode(city));
         cityOptions.append(label);
       });
@@ -292,21 +292,24 @@
       });
     }
 
-    function resetTrip() {
-      drawId++;
-      currentTrip = null;
-      hideCards(allCards());
-      setRepickDisabled(true);
-      regenerateButton.disabled = true;
-      buildButton.disabled = true;
-      regenerateButton.textContent = "Pick a trip";
-      statusBar.textContent = "Choose at least one city to pick a trip";
+    // Filters (cities, pace) only change what the next pick draws from. Cards
+    // never turn here: only the Pick button starts a draw and its flip.
+    function selectionChanged() {
+      const hasCities = selectedCities().length > 0;
+      regenerateButton.disabled = !hasCities;
+      if (!hasCities) {
+        statusBar.textContent = "Choose at least one city to pick a trip";
+      } else {
+        statusBar.textContent = currentTrip
+          ? `Selection updated, click "${regenerateButton.textContent}" to draw a new trip`
+          : "Choose your cities and pick a trip";
+      }
     }
 
     async function generateTrip() {
       const cities = selectedCities();
       if (!cities.length) {
-        resetTrip();
+        selectionChanged();
         return;
       }
       const thisDraw = ++drawId;
@@ -420,17 +423,17 @@
     paceOptions.forEach((option, i) => option.addEventListener("click", () => {
       paceOptions.forEach((other) => other.classList.toggle("is-selected", other === option));
       pace = (i === 0) ? "trailblazer" : "easygoing";
-      generateTrip();
+      selectionChanged();
     }));
     regenerateButton.addEventListener("click", generateTrip);
     buildButton.addEventListener("click", buildTrip);
     document.getElementById("select-all-cities").addEventListener("click", () => {
       cityOptions.querySelectorAll('input').forEach((input) => input.checked = true);
-      generateTrip();
+      selectionChanged();
     });
     document.getElementById("clear-cities").addEventListener("click", () => {
       cityOptions.querySelectorAll('input').forEach((input) => input.checked = false);
-      resetTrip();
+      selectionChanged();
     });
     ["sight", "food"].forEach((type) => {
       document.querySelectorAll(`#${type}-row .card-repick`).forEach((button, i) => {
