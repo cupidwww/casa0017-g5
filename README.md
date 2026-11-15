@@ -14,6 +14,16 @@ Collecting digital stamps to make every travel memorisable.
 
 ## Usage
 
+To deploy the server, run:
+```
+npm install && npm start
+```
+
+If there's any issue with the database, you can reset the database by:
+```
+sqlite3 ./db/database.db < ./db/main.sql
+```
+
 ## References
 
 ### Interactive map
