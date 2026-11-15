@@ -128,6 +128,20 @@ app.get('/api/random-trip', tokenAuth, (req, res) => {
   });
 });
 
+app.get('/api/random-place', tokenAuth, (req, res) => {
+  const city = req.query.city || '';
+  const type = req.query.type;
+  if (type !== 'sight' && type !== 'food') return res.status(400).json({ is_success: false, message: 'Unknown place type.' });
+  // Skip every place already in the trip so a repick never duplicates a card.
+  const exclude = req.query.exclude ? String(req.query.exclude).split(',').map(Number).filter(Boolean) : [];
+  const candidates = db.prepare('SELECT id, name, city, address, type FROM places WHERE city = ? AND type = ?').all(city, type)
+    .filter((place) => !exclude.includes(place.id));
+  if (!candidates.length) {
+    return res.status(404).json({ is_success: false, message: 'No other places available.' });
+  }
+  res.status(200).json(candidates[Math.floor(Math.random() * candidates.length)]);
+});
+
 app.get('/api/cities', tokenAuth, (req, res) => {
   const cities = db.prepare('SELECT DISTINCT city FROM places ORDER BY city').all().map((row) => row.city);
   res.status(200).json({ cities });

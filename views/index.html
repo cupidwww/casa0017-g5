@@ -47,15 +47,15 @@
       <div class="slideshow">
         <div class="slides">
           <figure class="slide is-active">
-            <img src="ref_proj/public/assets/edinburgh.jpg" alt="Edinburgh skyline seen from Calton Hill, with the castle in the distance">
+            <img src="assets/slider/edinburgh.jpg" alt="Edinburgh skyline seen from Calton Hill, with the castle in the distance">
             <figcaption>Edinburgh, Scotland</figcaption>
           </figure>
           <figure class="slide">
-            <img src="ref_proj/public/assets/london.jpg" alt="Big Ben and the Palace of Westminster beside Westminster Bridge">
+            <img src="assets/slider/london.jpg" alt="Big Ben and the Palace of Westminster beside Westminster Bridge">
             <figcaption>London, England</figcaption>
           </figure>
           <figure class="slide">
-            <img src="ref_proj/public/assets/york.jpg" alt="The Gothic towers and stone facade of York Minster">
+            <img src="assets/slider/york.jpg" alt="The Gothic towers and stone facade of York Minster">
             <figcaption>York, England</figcaption>
           </figure>
         </div>
@@ -104,49 +104,77 @@
     <section class="trip">
       <div class="trip-heading">
         <h2 id="trip-title">Your trip starts here...</h2>
-        <p class="status-bar" id="status-bar">Picking a city for you...</p>
+        <p class="status-bar" id="status-bar">Choose your cities and pick a trip</p>
         <div class="trip-actions">
-          <button type="button" class="build-button" id="regenerate-button" disabled>Pick again</button>
+          <button type="button" class="build-button" id="regenerate-button">Pick a trip</button>
           <button type="button" class="build-button" id="build-button" disabled>Build my trip</button>
         </div>
       </div>
 
       <div class="card-board">
         <article class="card city-card">
-          <span class="card-label" id="city-label">City</span>
-          <div class="placeholder card-photo"></div>
+          <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+          <div class="card-face card-front">
+            <span class="card-label" id="city-label">City</span>
+            <div class="placeholder card-photo"></div>
+            <p class="city-description" id="city-description"></p>
+          </div>
         </article>
 
         <div class="discovery">
           <h3>Sights</h3>
           <div class="card-row" id="sight-row">
             <article class="card">
-              <span class="card-label">Sight 1</span>
-              <div class="placeholder card-photo"></div>
+              <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+              <div class="card-face card-front">
+                <span class="card-label">Sight 1</span>
+                <div class="placeholder card-photo"></div>
+                <button type="button" class="card-repick" disabled>Repick</button>
+              </div>
             </article>
             <article class="card">
-              <span class="card-label">Sight 2</span>
-              <div class="placeholder card-photo"></div>
+              <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+              <div class="card-face card-front">
+                <span class="card-label">Sight 2</span>
+                <div class="placeholder card-photo"></div>
+                <button type="button" class="card-repick" disabled>Repick</button>
+              </div>
             </article>
             <article class="card optional-card">
-              <span class="card-label">Sight 3</span>
-              <div class="placeholder card-photo"></div>
+              <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+              <div class="card-face card-front">
+                <span class="card-label">Sight 3</span>
+                <div class="placeholder card-photo"></div>
+                <button type="button" class="card-repick" disabled>Repick</button>
+              </div>
             </article>
           </div>
 
           <h3>Food and Drinks</h3>
           <div class="card-row" id="food-row">
             <article class="card">
-              <span class="card-label">Food 1</span>
-              <div class="placeholder card-photo"></div>
+              <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+              <div class="card-face card-front">
+                <span class="card-label">Food 1</span>
+                <div class="placeholder card-photo"></div>
+                <button type="button" class="card-repick" disabled>Repick</button>
+              </div>
             </article>
             <article class="card">
-              <span class="card-label">Food 2</span>
-              <div class="placeholder card-photo"></div>
+              <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+              <div class="card-face card-front">
+                <span class="card-label">Food 2</span>
+                <div class="placeholder card-photo"></div>
+                <button type="button" class="card-repick" disabled>Repick</button>
+              </div>
             </article>
             <article class="card">
-              <span class="card-label">Food 3</span>
-              <div class="placeholder card-photo"></div>
+              <div class="card-face card-back"><span class="card-back-mark">?</span></div>
+              <div class="card-face card-front">
+                <span class="card-label">Food 3</span>
+                <div class="placeholder card-photo"></div>
+                <button type="button" class="card-repick" disabled>Repick</button>
+              </div>
             </article>
           </div>
         </div>
@@ -203,6 +231,20 @@
       });
     }
 
+    // Short summaries adapted from each city's Wikipedia article, keyed by the
+    // city name used in the places table. Fetched once; an empty map on failure.
+    const cityDescriptions = fetch("assets/city-descriptions.json")
+      .then((res) => res.ok ? res.json() : {})
+      .catch(() => ({}));
+
+    // The only place the city card changes, so its name, photo and
+    // description always stay in step.
+    async function showCity(city) {
+      const card = document.querySelector(".city-card");
+      fillCard(card, city, `assets/cities/${city.toLowerCase()}.jpg`);
+      document.getElementById("city-description").textContent = (await cityDescriptions)[city] || "";
+    }
+
     function fillCard(card, label, image) {
       card.querySelector(".card-label").textContent = label;
       card.querySelector(".card-photo").style.backgroundImage = `url('${image}')`;
@@ -220,32 +262,65 @@
       }
     }
 
-    function playCardFlip() {
-      const cards = document.querySelectorAll(".card-board .card");
+    const flipDuration = 600;
+    // Bumped on every new trip so a slow response cannot overwrite a newer one.
+    let drawId = 0;
+
+    function allCards() {
+      return [...document.querySelectorAll(".card-board .card")];
+    }
+
+    function setRepickDisabled(disabled) {
+      document.querySelectorAll(".card-repick").forEach((button) => button.disabled = disabled);
+    }
+
+    function hideCards(cards) {
+      const wasRevealed = cards.some((card) => card.classList.contains("is-revealed"));
+      cards.forEach((card) => {
+        card.style.transitionDelay = "0ms";
+        card.classList.remove("is-revealed");
+      });
+      // Wait for the turn to finish so new content is never seen mid-flip.
+      return new Promise((resolve) => setTimeout(resolve, wasRevealed ? flipDuration : 0));
+    }
+
+    function revealCards(cards) {
       cards.forEach((card, index) => {
-        card.classList.remove("is-flipping");
-        // Restart the animation so it plays on every draw.
-        void card.offsetWidth;
-        card.style.animationDelay = `${index * 65}ms`;
-        card.classList.add("is-flipping");
+        card.style.transitionDelay = `${index * 65}ms`;
+        card.classList.add("is-revealed");
       });
     }
 
-    async function generateTrip() {
+    function resetTrip() {
+      drawId++;
+      currentTrip = null;
+      hideCards(allCards());
+      setRepickDisabled(true);
       regenerateButton.disabled = true;
       buildButton.disabled = true;
+      regenerateButton.textContent = "Pick a trip";
+      statusBar.textContent = "Choose at least one city to pick a trip";
+    }
+
+    async function generateTrip() {
+      const cities = selectedCities();
+      if (!cities.length) {
+        resetTrip();
+        return;
+      }
+      const thisDraw = ++drawId;
+      const cards = allCards();
+      regenerateButton.disabled = true;
+      buildButton.disabled = true;
+      setRepickDisabled(true);
       statusBar.textContent = "Picking a city for you...";
-      playCardFlip();
       try {
-        let url = `/api/random-trip?pace=${pace}`;
-        const cities = selectedCities();
-        if (cities.length) url += `&cities=${encodeURIComponent(cities.join(','))}`;
-        else { statusBar.textContent = "Choose at least one city to pick a trip"; return; }
+        let url = `/api/random-trip?pace=${pace}&cities=${encodeURIComponent(cities.join(','))}`;
         if (currentTrip) {
           // Keep re-picks within a chosen city; otherwise avoid the previous city.
           if (cities.length > 1) url += `&exclude=${encodeURIComponent(currentTrip.city)}`;
         }
-        const res = await fetch(url);
+        const [res] = await Promise.all([fetch(url), hideCards(cards)]);
         if (res.status === 401) {
           window.location.href = "/?expired=1";
           return;
@@ -253,17 +328,61 @@
         if (res.status !== 200) {
           throw new Error(res.status);
         }
-        currentTrip = await res.json();
-        fillCard(document.querySelector(".city-card"), currentTrip.city, `assets/cities/${currentTrip.city.toLowerCase()}.jpg`);
+        const trip = await res.json();
+        await cityDescriptions;
+        if (thisDraw !== drawId) return;
+        currentTrip = trip;
+        await showCity(currentTrip.city);
         fillRow("sight-row", currentTrip.sights);
         fillRow("food-row", currentTrip.food);
+        revealCards(cards.filter((card) => card.style.display !== "none"));
         statusBar.textContent = `Travel in ${currentTrip.city} with ${currentTrip.sights.length} sights and ${currentTrip.food.length} food stops`;
+        regenerateButton.textContent = "Pick again";
         buildButton.disabled = false;
+        setRepickDisabled(false);
       } catch (err) {
+        if (thisDraw !== drawId) return;
         currentTrip = null;
         statusBar.textContent = "Could not pick a trip, please try again";
       }
       regenerateButton.disabled = false;
+    }
+
+    async function repickCard(type, index) {
+      if (!currentTrip) return;
+      const thisDraw = drawId;
+      const card = document.querySelectorAll(`#${type}-row .card`)[index];
+      const places = (type === "sight") ? currentTrip.sights : currentTrip.food;
+      // Lock the trip while one card turns so two repicks cannot draw the same place.
+      regenerateButton.disabled = true;
+      buildButton.disabled = true;
+      setRepickDisabled(true);
+      try {
+        const ids = currentTrip.sights.concat(currentTrip.food).map((place) => place.id);
+        const url = `/api/random-place?city=${encodeURIComponent(currentTrip.city)}&type=${type}&exclude=${ids.join(',')}`;
+        const [res] = await Promise.all([fetch(url), hideCards([card])]);
+        if (res.status === 401) {
+          window.location.href = "/?expired=1";
+          return;
+        }
+        if (res.status === 404) {
+          statusBar.textContent = `No other ${type === "sight" ? "sights" : "food stops"} in ${currentTrip.city}`;
+        } else if (res.status !== 200) {
+          throw new Error(res.status);
+        } else {
+          const place = await res.json();
+          if (thisDraw !== drawId) return;
+          places[index] = place;
+          fillCard(card, place.name, `assets/places/${place.id}.jpg`);
+        }
+      } catch (err) {
+        statusBar.textContent = "Could not repick this card, please try again";
+      }
+      if (thisDraw !== drawId) return;
+      revealCards([card]);
+      regenerateButton.disabled = false;
+      buildButton.disabled = false;
+      setRepickDisabled(false);
     }
 
     async function buildTrip() {
@@ -310,12 +429,14 @@
     });
     document.getElementById("clear-cities").addEventListener("click", () => {
       cityOptions.querySelectorAll('input').forEach((input) => input.checked = false);
-      currentTrip = null;
-      regenerateButton.disabled = true;
-      buildButton.disabled = true;
-      statusBar.textContent = "Choose at least one city to pick a trip";
+      resetTrip();
     });
-    loadCities().then(generateTrip).catch(() => {
+    ["sight", "food"].forEach((type) => {
+      document.querySelectorAll(`#${type}-row .card-repick`).forEach((button, i) => {
+        button.addEventListener("click", () => repickCard(type, i));
+      });
+    });
+    loadCities().catch(() => {
       statusBar.textContent = "Could not load cities, please refresh the page";
     });
 

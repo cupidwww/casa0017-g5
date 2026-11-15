@@ -35,7 +35,7 @@ export function updateToken(user_id, db) {
   const token = randomBytes(32).toString('base64url');
   const hash = createHash('sha256').update(token).digest('hex');
   const insert = db.prepare('INSERT INTO sessions (id_hash, user_id, expiration) VALUES (?, ?, ?)');
-  insert.run(hash, user_id, Date.now() + 10 * 1e3 * 60);
+  insert.run(hash, user_id, Date.now() + 1e3 * 60 * 60 * 24);
   return token;
 }
 

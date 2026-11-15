@@ -442,7 +442,7 @@ main {
 
 .card-board {
   display: grid;
-  grid-template-columns: 1fr 2.5fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2.5fr);
   gap: 1.5em;
 }
 
@@ -450,50 +450,125 @@ main {
   display: grid;
   gap: 0.75em;
   align-content: start;
+  min-width: 0;
 }
 
 .card-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1em;
 }
 
+/* Both faces share one grid cell, so the card is as tall as its taller face. */
 .card {
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 0.75em;
+  min-width: 0;
+  transform: perspective(1200px) rotateY(0deg);
+  transform-style: preserve-3d;
+  transition: transform 600ms cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+
+.card.is-revealed {
+  transform: perspective(1200px) rotateY(180deg);
+}
+
+.card-face {
+  grid-area: 1 / 1;
+  min-width: 0;
+  overflow: hidden;
   padding: 1em;
   border: thin solid var(--border);
   border-radius: 1em;
   background: var(--surface);
-  transform-style: preserve-3d;
   backface-visibility: hidden;
 }
 
-.card.is-flipping {
-  animation: card-flip 1500ms cubic-bezier(0.2, 0.7, 0.25, 1) both;
+.card-back {
+  display: grid;
+  place-items: center;
+  background: var(--accent);
 }
 
-@keyframes card-flip {
-  0% { transform: perspective(1200px) rotateY(0deg) scale(1); }
-  50% { transform: perspective(1200px) rotateY(180deg) scale(0.97); }
-  100% { transform: perspective(1200px) rotateY(360deg) scale(1); }
+.card-back-mark {
+  color: var(--text-on-accent);
+  font-size: 3em;
+  font-weight: bold;
+}
+
+.card-front {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: 0.75em;
+  transform: rotateY(180deg);
+}
+
+.card-label {
+  overflow-wrap: anywhere;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card.is-flipping { animation-duration: 1ms; }
+  .card { transition-duration: 1ms; }
 }
 
 .card-photo {
   aspect-ratio: 4 / 3;
   width: 100%;
+  min-height: 0;
   background-size: cover;
   background-position: center;
 }
 
+.city-description {
+  min-height: 0;
+  overflow: auto;
+  margin: 0;
+  color: var(--tip);
+  font-size: 0.9em;
+  overflow-wrap: anywhere;
+}
+
+.card-repick {
+  justify-self: start;
+  max-width: 100%;
+  padding: 0.3em 0.8em;
+  border: thin solid var(--border);
+  border-radius: 2em;
+  background: var(--background);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.card-repick:hover {
+  background: var(--hover);
+}
+
+.card-repick:disabled {
+  color: var(--tip);
+  cursor: not-allowed;
+}
+
+.card-repick:focus-visible {
+  outline: medium solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Hidden faces stay clickable in some browsers, so block the face-down repick button. */
+.card:not(.is-revealed) .card-repick {
+  pointer-events: none;
+}
+
+/* The photo takes 3/5 of the city card's flexible space and the description
+   the rest, so the photo never overflows. When the card isn't stretched
+   (narrow screens), the photo keeps an 8em minimum. */
+.city-card .card-front {
+  grid-template-rows: auto minmax(0, 3fr) minmax(0, 2fr);
+}
+
 .city-card .card-photo {
   aspect-ratio: auto;
-  min-height: 12em;
+  min-height: 8em;
 }
 
 /* Narrow screens */
