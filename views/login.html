@@ -28,7 +28,7 @@
         <button type="button" id="signup-btn">Sign up</button>
       </div>
       <div id="login-form">
-        <form >
+        <form id="login-form-inner">
             <label for="username">Username</label>
             <input id="username" name="username" required pattern="[A-Za-z0-9]+" maxlength="32" autocomplete="username" autocapitalize="none" spellcheck="false" title="Use letters and numbers only">
 
@@ -94,7 +94,8 @@
   const signupPwdInput = document.getElementById("spassword");
   const signupPwdInputC = document.getElementById("spassword-confirm");
   const notifier = document.getElementById("notifier");
-  loginSubmitBtn.addEventListener('click', async () => {
+  document.getElementById("login-form-inner").addEventListener('submit', async (e) => {
+    e.preventDefault(); // stop the native GET reload that races the fetch
     const loginInfo = { username: usernameInput.value, password: pwdInput.value };
     const _ = await fetch('/login', {
       method: 'POST',
